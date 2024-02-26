@@ -11,7 +11,8 @@ let cars = [
     brand: "Toyota",
     license_plate: "fnk-055",
     color: "red",
-    time: new Date().toISOString()
+    time: new Date().toISOString(),
+    retired: false
   }
 ]
 
@@ -26,7 +27,10 @@ app.use(function (_req, res, next) {
 
 app.get("/donations", (_req, res) => {
   res.json(donations);
+  console.log(donations);
 });
+
+
 
 app.post("/donations", (req, res) => {
   const donationAmount = req.body.donationAmount;
@@ -35,30 +39,73 @@ app.post("/donations", (req, res) => {
   res.status(200).end();
 });
 
+
+
 // create a get function to get the car brand
 
-app.get("/car", (_req, res) => {
+app.get("/carst", (_req, res) => {
   res.json(cars);
+  console.log("cars listed");
 });
 
 // create a post function To register a car by its brand
 
 
-app.post("/car", (req, res) => {
-  const carBrand = req.body.brand;
-  const carLicensePlate = req.body.license_plate;
-  const carColor = req.body.color;
-  console.log(carBrand);
-  console.log(carLicensePlate);
-  const carTime = new Date().toISOString();
-  cars.push({
-    brand: carBrand,
-    license_plate: carLicensePlate,
-    color: carColor,
-    time: carTime
-  });
-  res.status(200).end();
+
+app.post("/cars", (req, res) => {
+  console.log("no debe entrar aca");
+  try {
+    const carBrand = req.body.brand;
+    const carLicensePlate = req.body.license_plate;
+    const carColor = req.body.color;
+    const carTime = new Date().toISOString();
+    const carRetired = false;
+    const newCar = {
+      brand: carBrand,
+      license_plate: carLicensePlate,
+      color: carColor,
+      time: carTime,
+      retired: carRetired
+    };
+    cars.push(newCar);
+
+    console.log("Car registered successfully: ", newCar);
+    
+    res.status(200).json("Car registered successfully");
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+
 });
+
+app.patch('/cars', (req, res) => {
+  const { license_plate } = req.body;
+
+  const car = cars.find(car => car.license_plate === license_plate);
+
+  if (car) {
+    car.retired = true;
+    console.log(car);
+    res.status(200).json("Car retired successfully");
+  } else {
+    res.status(404).json({ message: 'Car not found' });
+  }
+});
+/*
+app.patch('/car/:license_plate', (req, res) => {
+  const { license_plate } = req.params;
+
+  const car = cars.find(car => car.license_plate === license_plate);
+
+  if (car) {
+    car.retired = true;
+    console.log(car);
+    res.status(200).json("Car retired successfully");
+  } else {
+    res.status(404).json({ message: 'Car not found' });
+  }
+});
+*/
 
 
 
