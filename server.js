@@ -25,11 +25,12 @@ app.use(function (_req, res, next) {
   next();
 });
 
+/*
 app.get("/donations", (_req, res) => {
-  res.json(donations);
-  console.log(donations);
+  res.json(cars);
+  console.log(cars);
 });
-
+*/
 
 
 app.post("/donations", (req, res) => {
@@ -43,7 +44,7 @@ app.post("/donations", (req, res) => {
 
 // create a get function to get the car brand
 
-app.get("/carst", (_req, res) => {
+app.get("/cars", (_req, res) => {
   res.json(cars);
   console.log("cars listed");
 });
