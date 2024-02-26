@@ -8,7 +8,7 @@ app.use(express.json());
 let donations = { total: 2000 };
 let cars = [
   {
-    brand: "https://illustoon.com/photo/496.png",
+    photo: "https://illustoon.com/photo/496.png",
     license_plate: "fnk-055",
     color: "red",
     time: new Date().toISOString(),
@@ -56,13 +56,13 @@ app.get("/cars", (_req, res) => {
 app.post("/cars", (req, res) => {
   console.log("no debe entrar aca");
   try {
-    const carBrand = req.body.brand;
+    const carPhoto = req.body.photo;
     const carLicensePlate = req.body.license_plate;
     const carColor = req.body.color;
     const carTime = new Date().toISOString();
     const carRetired = false;
     const newCar = {
-      brand: carBrand,
+      photo: carPhoto,
       license_plate: carLicensePlate,
       color: carColor,
       time: carTime,
