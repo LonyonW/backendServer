@@ -8,7 +8,7 @@ app.use(express.json());
 let donations = { total: 2000 };
 let cars = [
   {
-    brand: "Toyota",
+    brand: "https://illustoon.com/photo/496.png",
     license_plate: "fnk-055",
     color: "red",
     time: new Date().toISOString(),
