@@ -43,7 +43,8 @@ app.post("/donations", (req, res) => {
 // create a get function to get the car brand
 
 app.get("/cars", (_req, res) => {
-  res.json(cars);
+  let carsnew  = cars.filter(cars => cars.retired === false);
+  res.json(carsnew);
   console.log("cars listed");
 });
 
@@ -81,13 +82,12 @@ app.patch('/cars', (req, res) => {
   const { license_plate } = req.body;
   console.log("busca borrar un carro")
   const car = cars.find(car => car.license_plate === license_plate);
-
   if (car) {
     car.retired = true;
     console.log(car);
     res.status(200).json("Car retired successfully: car name "+license_plate);
   } else {
-    res.status(404).json({ message: 'Car not found' });
+    res.status(404).json({ message: 'Car not found with: '+license_plate });
   }
 });
 /*
