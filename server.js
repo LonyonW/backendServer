@@ -15,7 +15,6 @@ let cars = [
     retired: false
   }
 ]
-
 app.use(function (_req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
@@ -31,8 +30,6 @@ app.get("/donations", (_req, res) => {
   console.log(cars);
 });
 */
-
-
 app.post("/donations", (req, res) => {
   const donationAmount = req.body.donationAmount;
   const newTotal = donations.total + donationAmount;
@@ -43,15 +40,12 @@ app.post("/donations", (req, res) => {
 // create a get function to get the car brand
 
 app.get("/cars", (_req, res) => {
-  let carsnew  = cars.filter(cars => cars.retired === false);
+  let carsnew = cars.filter(cars => cars.retired === false);
   res.json(carsnew);
   console.log("cars listed");
 });
 
 // create a post function To register a car by its brand
-
-
-
 app.post("/cars", (req, res) => {
   console.log("no debe entrar aca");
   try {
@@ -70,7 +64,7 @@ app.post("/cars", (req, res) => {
     cars.push(newCar);
 
     console.log("Car registered successfully: ", newCar);
-    
+
     res.status(200).json("Car registered successfully");
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -85,9 +79,9 @@ app.patch('/cars', (req, res) => {
   if (car) {
     car.retired = true;
     console.log(car);
-    res.status(200).json("Car retired successfully: car name "+license_plate);
+    res.status(200).json("Car retired successfully: car name " + license_plate);
   } else {
-    res.status(404).json({ message: 'Car not found with: '+license_plate });
+    res.status(404).json({ message: 'Car not found with: ' + license_plate });
   }
 });
 /*
