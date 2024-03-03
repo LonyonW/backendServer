@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
-const port = 3000;
+const port = 3001;
+
 app.use(express.json());
 
 // Simulamos la persistencia con un valor inicials
@@ -11,7 +12,7 @@ let cars = [
     photo: "https://illustoon.com/photo/496.png",
     license_plate: "fnk-055",
     color: "red",
-    time: new Date().toISOString(),
+    time: getFormattedDate(),
     retired: false
   }
 ]
@@ -23,6 +24,11 @@ app.use(function (_req, res, next) {
   );
   next();
 });
+
+function getFormattedDate() {
+  const now = new Date();
+  return `[${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}:${now.getHours()}/${now.getMinutes()}/${now.getSeconds()}]`;
+}
 
 /*
 app.get("/donations", (_req, res) => {
@@ -43,6 +49,7 @@ app.get("/cars", (_req, res) => {
   let carsnew = cars.filter(cars => cars.retired === false);
   res.json(carsnew);
   console.log("cars listed");
+  //console.log();
 });
 
 // create a post function To register a car by its brand
@@ -52,7 +59,7 @@ app.post("/cars", (req, res) => {
     const carPhoto = req.body.photo;
     const carLicensePlate = req.body.license_plate;
     const carColor = req.body.color;
-    const carTime = new Date().toISOString();
+    const carTime = getFormattedDate();
     const carRetired = false;
     const newCar = {
       photo: carPhoto,
