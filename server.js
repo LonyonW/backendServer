@@ -48,13 +48,11 @@ app.post("/donations", (req, res) => {
 app.get("/cars", (_req, res) => {
   let carsnew = cars.filter(cars => cars.retired === false);
   res.json(carsnew);
-  console.log("cars listed");
-  //console.log();
+  console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${_req.url}]`);
 });
 
 // create a post function To register a car by its brand
 app.post("/cars", (req, res) => {
-  console.log("no debe entrar aca");
   try {
     const carPhoto = req.body.photo;
     const carLicensePlate = req.body.license_plate;
@@ -70,7 +68,8 @@ app.post("/cars", (req, res) => {
     };
     cars.push(newCar);
 
-    console.log("Car registered successfully: ", newCar);
+    //console.log("Car registered successfully: ", newCar);
+    console.log(`[${req.ip.split(':').pop()}] ${getFormattedDate()} [${req.method}] [${JSON.stringify(newCar)}]`);
 
     res.status(200).json("Car registered successfully");
   } catch (error) {
