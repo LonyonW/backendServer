@@ -2,20 +2,20 @@ const express = require("express");
 const app = express();
 const port = 3001;
 
+const pgp = require('pg-promise')();
+const db = pgp({
+  user: 'postgres',
+  password: '12345678',
+  host: '192.168.1.10',
+  port: 5432,
+  database: 'distridb'
+});
+
+module.exports = db;
+
 app.use(express.json());
 
-// Simulamos la persistencia con un valor inicials
 
-let donations = { total: 2000 };
-let cars = [
-  {
-    photo: "https://illustoon.com/photo/496.png",
-    license_plate: "fnk-055",
-    color: "red",
-    time: getFormattedDate(),
-    retired: false
-  }
-]
 app.use(function (_req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
@@ -30,25 +30,18 @@ function getFormattedDate() {
   return `[${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}:${now.getHours()}/${now.getMinutes()}/${now.getSeconds()}]`;
 }
 
-/*
-app.get("/donations", (_req, res) => {
-  res.json(cars);
-  console.log(cars);
-});
-*/
-app.post("/donations", (req, res) => {
-  const donationAmount = req.body.donationAmount;
-  const newTotal = donations.total + donationAmount;
-  donations = { total: newTotal };
-  res.status(200).end();
-});
-
-// create a get function to get the car brand
-
-app.get("/cars", (_req, res) => {
-  let carsnew = cars.filter(cars => cars.retired === false);
-  res.json(carsnew);
-  console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${_req.url}]`);
+app.get("/cars", async (_req, res) => {
+  try {
+    const cars = await db.any('SELECT * FROM car WHERE retired = false');
+    res.json(cars);
+    console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${_req.url}]`);
+  }
+  catch (error) {
+    console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${_req.url}] [${error.message}]`);
+    res.status(500).json({ message: error.message });
+  }
+ 
+  
 });
 
 // create a post function To register a car by its brand
