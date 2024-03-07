@@ -30,9 +30,14 @@ function getFormattedDate() {
   return `[${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}:${now.getHours()}/${now.getMinutes()}/${now.getSeconds()}]`;
 }
 
+function getIsoDate() {
+  const fecha = new Date();
+  return fecha.toISOString();
+}
+
 app.get("/cars", async (_req, res) => {
   try {
-    const cars = await db.any('SELECT * FROM car WHERE retired = false');
+    const cars = await db.any('SELECT photo, license_plate, color, fecha_carro as time, retired FROM car WHERE retired = false');
     res.json(cars);
     console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${_req.url}]`);
   }
@@ -44,13 +49,12 @@ app.get("/cars", async (_req, res) => {
   
 });
 
-// create a post function To register a car by its brand
-app.post("/cars", (req, res) => {
+app.post("/cars", async (_req, res) => {
   try {
-    const carPhoto = req.body.photo;
-    const carLicensePlate = req.body.license_plate;
-    const carColor = req.body.color;
-    const carTime = getFormattedDate();
+    const carPhoto = _req.body.photo;
+    const carLicensePlate = _req.body.license_plate;
+    const carColor = _req.body.color;
+    const carTime = getIsoDate();
     const carRetired = false;
     const newCar = {
       photo: carPhoto,
@@ -59,47 +63,38 @@ app.post("/cars", (req, res) => {
       time: carTime,
       retired: carRetired
     };
-    cars.push(newCar);
+    await db.one(
+      'INSERT into car (photo, license_plate, color, fecha_carro, retired) VALUES($1, $2, $3, $4, $5) RETURNING *',
+       [carPhoto, carLicensePlate, carColor, carTime, carRetired]);
 
-    //console.log("Car registered successfully: ", newCar);
-    console.log(`[${req.ip.split(':').pop()}] ${getFormattedDate()} [${req.method}] [${JSON.stringify(newCar)}]`);
+    console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${JSON.stringify(newCar)}]`);
 
     res.status(200).json("Car registered successfully");
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${_req.url}] [${error.message}]`);
+
+    res.status(500).json({ message: error.message });
   }
 
 });
 
-app.patch('/cars', (req, res) => {
-  const { license_plate } = req.body;
-  console.log("busca borrar un carro")
-  const car = cars.find(car => car.license_plate === license_plate);
-  if (car) {
-    car.retired = true;
-    console.log(car);
-    res.status(200).json("Car retired successfully: car name " + license_plate);
-  } else {
-    res.status(404).json({ message: 'Car not found with: ' + license_plate });
+app.patch('/cars', async(_req, res) => {
+  try {
+    const { license_plate } = _req.body;
+
+    const car = await db.oneOrNone('SELECT EXISTS (SELECT 1 FROM car WHERE license_plate = $1)', license_plate);
+
+    if (!car.exists) {
+      res.status(404).json({ message: 'Car not found with: ' + license_plate });
+    }
+      await db.one('UPDATE car SET retired = true WHERE license_plate  = $1 RETURNING *', license_plate);
+      console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${JSON.stringify(car)}]`);
+      res.status(200).json("Car retired successfully: car name " + license_plate);
+  }catch (error) {
+    console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${_req.url}] [${error.message}]`);
+    res.status(500).json({ message: error.message });
   }
 });
-/*
-app.patch('/car/:license_plate', (req, res) => {
-  const { license_plate } = req.params;
-
-  const car = cars.find(car => car.license_plate === license_plate);
-
-  if (car) {
-    car.retired = true;
-    console.log(car);
-    res.status(200).json("Car retired successfully");
-  } else {
-    res.status(404).json({ message: 'Car not found' });
-  }
-});
-*/
-
-
 
 app.listen(port, () => {
   console.log(`Good app listening on port ${port}`);
