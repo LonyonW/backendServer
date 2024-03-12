@@ -63,6 +63,12 @@ app.post("/cars", async (_req, res) => {
       time: carTime,
       retired: carRetired
     };
+
+    if(await !carExist(carLicensePlate)) {
+      console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${_req.url}] [${'car already exist'}]`);
+      res.status(500).json({ message: 'car already exist' });
+    }
+
     await db.one(
       'INSERT into car (photo, license_plate, color, fecha_carro, retired) VALUES($1, $2, $3, $4, $5) RETURNING *',
        [carPhoto, carLicensePlate, carColor, carTime, carRetired]);
@@ -77,6 +83,16 @@ app.post("/cars", async (_req, res) => {
   }
 
 });
+
+async function carExist(plate) {
+  try {
+    const result = await db.oneOrNone('SELECT * FROM car WHERE license_plate = $1', [plate]);
+    return result !== null;
+  } catch (error) {
+    console.error('Error checking if car exists:', error);
+    return false;
+  }
+}
 
 app.patch('/cars', async(_req, res) => {
   try {
