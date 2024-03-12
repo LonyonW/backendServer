@@ -6,7 +6,7 @@ const pgp = require('pg-promise')();
 const db = pgp({
   user: "postgres",
   password: "12345678",
-  host: "10.4.73.86",
+  host: "192.168.80.16",
   port: "5432",
   database: "distridb"
 });
@@ -67,20 +67,22 @@ app.post("/cars", async (_req, res) => {
     if(!validateLicensePlateFormat(carLicensePlate)) {
       console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${_req.url}] [${'Error: invalid license plate format. Correct format: "AAA-000" '}]`);
       res.status(400).json({ message: 'invalid license plate format. Correct format: "AAA-000" ' });
-    }
-
-    if(await !carExist(carLicensePlate)) {
+    } else if(await !carExist(carLicensePlate)) {
       console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${_req.url}] [${'Error: car already exist'}]`);
       res.status(409).json({ message: 'car already exist' });
+    } else {
+      await db.one(
+        'INSERT into car (photo, license_plate, color, fecha_carro, retired) VALUES($1, $2, $3, $4, $5) RETURNING *',
+         [carPhoto, carLicensePlate, carColor, carTime, carRetired]);
+  
+      console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${JSON.stringify(newCar)}]`);
+  
+      res.status(200).json("Car registered successfully");
     }
 
-    await db.one(
-      'INSERT into car (photo, license_plate, color, fecha_carro, retired) VALUES($1, $2, $3, $4, $5) RETURNING *',
-       [carPhoto, carLicensePlate, carColor, carTime, carRetired]);
+    
 
-    console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${JSON.stringify(newCar)}]`);
-
-    res.status(200).json("Car registered successfully");
+    
   } catch (error) {
     console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${_req.url}] [${error.message}]`);
 
