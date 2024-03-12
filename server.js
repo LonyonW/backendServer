@@ -64,9 +64,14 @@ app.post("/cars", async (_req, res) => {
       retired: carRetired
     };
 
+    if(!validateLicensePlateFormat(carLicensePlate)) {
+      console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${_req.url}] [${'Error: invalid license plate format. Correct format: "AAA-000" '}]`);
+      res.status(400).json({ message: 'invalid license plate format. Correct format: "AAA-000" ' });
+    }
+
     if(await !carExist(carLicensePlate)) {
-      console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${_req.url}] [${'car already exist'}]`);
-      res.status(500).json({ message: 'car already exist' });
+      console.log(`[${_req.ip.split(':').pop()}] ${getFormattedDate()} [${_req.method}] [${_req.url}] [${'Error: car already exist'}]`);
+      res.status(409).json({ message: 'car already exist' });
     }
 
     await db.one(
@@ -92,6 +97,11 @@ async function carExist(plate) {
     console.error('Error checking if car exists:', error);
     return false;
   }
+}
+
+function validateLicensePlateFormat(licensePlate) {
+  const regex = /^[A-Z]{3}-\d{3}$/;
+  return regex.test(licensePlate);
 }
 
 app.patch('/cars', async(_req, res) => {
