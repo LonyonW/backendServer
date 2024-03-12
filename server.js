@@ -1,8 +1,18 @@
 const express = require("express");
 const app = express();
-const port = 3001;
+const port = 3100;
 
+require('dotenv').config();
 const pgp = require('pg-promise')();
+const db = pgp({
+  user: process.env.DATABASE_USER.toString(),
+  password: process.env.DATABASE_PASSWORD.toString(),
+  host: process.env.DATABASE_HOST.toString(),
+  port: process.env.DATABASE_PORT.toString(),
+  database: process.env.DATABASE_NAME.toString()
+});
+
+/*
 const db = pgp({
   user: "postgres",
   password: "12345678",
@@ -10,6 +20,7 @@ const db = pgp({
   port: "5432",
   database: "distridb"
 });
+*/
 
 module.exports = db;
 
