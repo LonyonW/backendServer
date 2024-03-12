@@ -4,11 +4,11 @@ const port = 3001;
 
 const pgp = require('pg-promise')();
 const db = pgp({
-  user: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
-  host: process.env.DATABASE_HOST,
-  port: process.env.DATABASE_PORT,
-  database: process.env.DATABASE_NAME
+  user: "postgres",
+  password: "12345678",
+  host: "10.4.73.86",
+  port: "5432",
+  database: "distridb"
 });
 
 module.exports = db;
