@@ -1,0 +1,20 @@
+FROM node
+
+
+WORKDIR /usr/share/server
+
+COPY package.json package.json
+COPY package-lock.json package-lock.json
+
+COPY . .
+RUN npm install
+
+ENV DATABASE_USER=$DATABASE_USER
+ENV DATABASE_PASSWORD=$DATABASE_PASSWORD
+ENV DATABASE_HOST=$DATABASE_HOST
+ENV DATABASE_PORT=$DATABASE_PORT
+ENV DATABASE_NAME=$DATABASE_NAME
+
+EXPOSE 3000
+
+CMD [ "node", "server.js" ]
